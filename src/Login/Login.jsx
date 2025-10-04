@@ -3,6 +3,7 @@ import React, { useContext, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { NavLink, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
+import ReCAPTCHA from "react-google-recaptcha";
 
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { AuthContext } from "../Provider/AuthProvider";
@@ -10,6 +11,7 @@ import { AuthContext } from "../Provider/AuthProvider";
 const Login = () => {
   const { handleLogin, setUser } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
+  const [captchaValue, setCaptchaValue] = useState(null);
 
   const navigate = useNavigate();
 
@@ -22,6 +24,10 @@ const Login = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
+    if (!captchaValue) {
+      toast.error("Please complete the reCAPTCHA.");
+      return;
+    }
     console.log(data);
 
     try {
@@ -31,6 +37,7 @@ const Login = () => {
 
       toast.success("Account login successful!");
       reset();
+      setCaptchaValue(null);
 
       setTimeout(() => navigate("/apply-form"), 2000);
     } catch (error) {
@@ -125,6 +132,14 @@ const Login = () => {
                     {errors.password.message}
                   </p>
                 )}
+              </div>
+
+              {/* reCAPTCHA */}
+              <div className=" flex justify-center">
+                <ReCAPTCHA
+                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                  onChange={setCaptchaValue}
+                />
               </div>
 
               {/* Remember me */}
